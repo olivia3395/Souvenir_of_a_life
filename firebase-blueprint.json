@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user's unique ID" },
+        "email": { "type": "string", "format": "email", "description": "The user's email address" },
+        "displayName": { "type": "string", "description": "The user's display name" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the user account was created" }
+      },
+      "required": ["uid", "email", "createdAt"]
+    },
+    "Souvenir": {
+      "title": "Souvenir",
+      "description": "A generated souvenir from a life not yet lived",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The ID of the user who owns this souvenir" },
+        "title": { "type": "string", "description": "The name of the object" },
+        "place": { "type": "string", "description": "The destination or place" },
+        "subtitle": { "type": "string", "description": "The unlived-life framing" },
+        "narrative": { "type": "string", "description": "Short immersive narrative" },
+        "interpretation": { "type": "string", "description": "Emotional interpretation" },
+        "moodTags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Mood tags associated with the souvenir"
+        },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the souvenir was generated" },
+        "isFavorited": { "type": "boolean", "description": "Whether the user favorited this souvenir" },
+        "imageUrl": { "type": "string", "description": "The generated image URL for the souvenir" }
+      },
+      "required": ["userId", "title", "place", "subtitle", "narrative", "interpretation", "moodTags", "createdAt", "isFavorited"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles"
+    },
+    "/souvenirs/{souvenirId}": {
+      "schema": { "$ref": "#/entities/Souvenir" },
+      "description": "Stores generated souvenirs"
+    }
+  }
+}
