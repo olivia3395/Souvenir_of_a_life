@@ -102,7 +102,9 @@ export function Layout() {
         <div className="max-w-2xl mx-auto px-6 space-y-4">
           <p>{language === 'en' ? 'Some lives are never fully lived. They still leave things behind.' : '有些人生未曾被完整度过，但它们依然留下了痕迹。'}</p>
           <div className="h-px w-8 bg-[var(--color-museum-border)] mx-auto" />
-          <p className="not-italic opacity-60">© {new Date().getFullYear()} {language === 'en' ? 'The Parallel Archive' : '平行档案库'}</p>
+          <p className="not-italic opacity-60">
+            © {new Date().getFullYear()} {language === 'en' ? 'The Parallel Archive' : '平行档案库'} | Yuyao Wang (yuyaow@bu.edu)
+          </p>
         </div>
       </footer>
     </div>
