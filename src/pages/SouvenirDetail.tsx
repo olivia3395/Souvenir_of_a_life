@@ -6,6 +6,7 @@ import { Loader2, ArrowLeft, Calendar, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { GeneratedSouvenir } from '../lib/gemini';
 import { useLanguage } from '../contexts/LanguageContext';
+import { motion } from 'motion/react';
 
 interface SavedSouvenir extends GeneratedSouvenir {
   id: string;
@@ -72,91 +73,130 @@ export function SouvenirDetail() {
   if (!souvenir) return null;
 
   return (
-    <div className="flex-1 px-6 py-12 max-w-5xl mx-auto w-full">
-      <div>
+    <div className="gallery-corridor py-20">
+      <div className="max-w-5xl mx-auto px-6">
         <Link 
           to="/museum" 
-          className="inline-flex items-center gap-2 text-sm text-[var(--color-museum-muted)] hover:text-white transition-colors mb-12"
+          className="inline-flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)] hover:text-[var(--color-museum-accent)] transition-colors mb-16 group"
         >
-          <ArrowLeft className="w-4 h-4" /> {language === 'en' ? 'Back to Museum' : '返回博物馆'}
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> 
+          {language === 'en' ? 'Back to Archive' : '返回档案库'}
         </Link>
 
-        <div className="bg-[var(--color-museum-card)] border border-[var(--color-museum-border)] rounded-3xl p-8 md:p-16 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--color-museum-border)] to-transparent opacity-50" />
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--color-museum-border)] to-transparent opacity-50" />
-          
-          <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-4">
-            <span className="text-xs tracking-[0.3em] uppercase text-[var(--color-museum-muted)] font-medium">
-              {souvenir.place}
-            </span>
-            {souvenir.createdAt?.toDate && (
-              <span className="flex items-center gap-2 text-xs tracking-widest uppercase text-[var(--color-museum-muted)]/70">
-                <Calendar className="w-3 h-3" />
-                {format(souvenir.createdAt.toDate(), 'MMMM d, yyyy')}
-              </span>
-            )}
-          </div>
+        {/* The Display Case */}
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          className="relative"
+        >
+          {/* Spotlight from above */}
+          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[var(--color-museum-accent)]/10 blur-[100px] rounded-full pointer-events-none" />
 
-          <div className="text-center space-y-8 mb-16">
-            <h1 className="font-serif text-5xl md:text-6xl font-light leading-tight tracking-wide">
-              {souvenir.title}
-            </h1>
-            <div className="h-px w-24 bg-[var(--color-museum-border)] mx-auto" />
-            <p className="font-serif italic text-xl md:text-2xl text-[var(--color-museum-muted)]">
-              {souvenir.subtitle}
-            </p>
-          </div>
+          <div className="bg-[#1c1816] border border-white/5 shadow-[0_40px_100px_rgba(0,0,0,0.8)] relative overflow-hidden">
+            {/* Glass reflection effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none z-20" />
+            
+            <div className="p-8 md:p-20 relative z-10">
+              <div className="flex flex-col md:flex-row items-center justify-between mb-20 gap-6">
+                <div className="flex flex-col items-center md:items-start">
+                  <span className="text-[10px] tracking-[0.4em] uppercase text-[var(--color-museum-accent)] font-medium mb-2">
+                    {souvenir.place}
+                  </span>
+                  <div className="h-px w-12 bg-[var(--color-museum-accent)]/30" />
+                </div>
+                
+                {souvenir.createdAt?.toDate && (
+                  <div className="flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)]/60">
+                    <Calendar className="w-3 h-3" />
+                    {format(souvenir.createdAt.toDate(), 'MMMM d, yyyy')}
+                  </div>
+                )}
+              </div>
 
-          {souvenir.imageUrl && (
-            <div className="mb-16 max-w-3xl mx-auto rounded-2xl overflow-hidden border border-[var(--color-museum-border)] shadow-2xl relative">
-              <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl pointer-events-none" />
-              <img 
-                src={souvenir.imageUrl} 
-                alt={souvenir.title} 
-                className="w-full h-auto object-cover"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-          )}
-
-          <div className="space-y-12 max-w-3xl mx-auto">
-            <div className="prose prose-invert prose-p:font-serif prose-p:leading-loose prose-p:text-[var(--color-museum-text)]/90 prose-p:text-lg">
-              {souvenir.narrative.split('\n').map((paragraph, i) => (
-                <p key={i} className={paragraph.trim() ? 'mb-6' : ''}>
-                  {paragraph}
+              <div className="text-center space-y-10 mb-20">
+                <h1 className="font-serif text-5xl md:text-7xl font-light leading-tight tracking-[0.1em] text-[var(--color-museum-text)]">
+                  {souvenir.title}
+                </h1>
+                <p className="font-serif italic text-xl md:text-3xl text-[var(--color-museum-muted)]/80 max-w-3xl mx-auto">
+                  {souvenir.subtitle}
                 </p>
-              ))}
-            </div>
+              </div>
 
-            <div className="border-t border-[var(--color-museum-border)] pt-12 mt-12 relative">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[var(--color-museum-card)] border border-[var(--color-museum-border)] rotate-45" />
-              <h3 className="text-xs tracking-[0.2em] uppercase text-[var(--color-museum-muted)] mb-6 text-center">
-                {language === 'en' ? 'Why it found you now' : '为什么它现在找到了你'}
-              </h3>
-              <p className="font-serif italic text-[var(--color-museum-muted)] leading-loose text-lg text-center max-w-2xl mx-auto">
-                {souvenir.interpretation}
-              </p>
-            </div>
+              {souvenir.imageUrl && (
+                <div className="mb-20 max-w-4xl mx-auto relative group">
+                  <div className="absolute -inset-4 bg-[var(--color-museum-accent)]/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                  <div className="relative overflow-hidden border border-white/10 shadow-2xl grayscale-[0.2] hover:grayscale-0 transition-all duration-1000">
+                    <img 
+                      src={souvenir.imageUrl} 
+                      alt={souvenir.title} 
+                      className="w-full h-auto object-cover scale-105 hover:scale-100 transition-transform duration-1000"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  {/* Archival Label */}
+                  <div className="absolute -bottom-4 -right-4 bg-[#d4c5a9] text-[#1c1816] px-6 py-3 shadow-xl text-[9px] tracking-[0.2em] uppercase font-bold border border-black/5">
+                    Visual Evidence Ref. {souvenir.id.slice(0, 8)}
+                  </div>
+                </div>
+              )}
 
-            <div className="flex flex-wrap justify-center gap-3 pt-8">
-              {souvenir.moodTags.map((tag, i) => (
-                <span key={i} className="text-xs tracking-widest uppercase px-4 py-2 rounded-full border border-[var(--color-museum-border)] text-[var(--color-museum-muted)] bg-white/5">
-                  {tag}
-                </span>
-              ))}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 max-w-5xl mx-auto">
+                <div className="lg:col-span-8 space-y-12">
+                  <div className="prose prose-invert prose-p:font-serif prose-p:leading-[2] prose-p:text-[var(--color-museum-text)]/90 prose-p:text-xl">
+                    {souvenir.narrative.split('\n').map((paragraph, i) => (
+                      <p key={i} className={paragraph.trim() ? 'mb-8' : ''}>
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="lg:col-span-4 space-y-12">
+                  <div className="bg-black/20 p-8 border border-white/5 space-y-8">
+                    <div>
+                      <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-6">
+                        {language === 'en' ? 'Archival Context' : '档案背景'}
+                      </h3>
+                      <p className="font-serif italic text-[var(--color-museum-muted)] leading-relaxed text-lg">
+                        {souvenir.interpretation}
+                      </p>
+                    </div>
+
+                    <div className="pt-8 border-t border-white/5">
+                      <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-6">
+                        {language === 'en' ? 'Mood Signatures' : '情绪签名'}
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {souvenir.moodTags.map((tag, i) => (
+                          <span key={i} className="text-[9px] tracking-widest uppercase px-3 py-1.5 border border-white/10 text-[var(--color-museum-muted)] bg-white/5">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-12 flex justify-center lg:justify-end">
+                    <button
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className="text-[9px] tracking-[0.3em] uppercase flex items-center gap-3 text-[var(--color-museum-muted)]/40 hover:text-red-400 transition-all duration-500 hover:tracking-[0.5em]"
+                    >
+                      {deleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                      {language === 'en' ? 'Deaccession Artifact' : '撤除展品'}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        </motion.div>
 
-          <div className="mt-20 pt-8 border-t border-[var(--color-museum-border)] flex justify-center md:justify-end">
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="text-xs tracking-widest uppercase flex items-center gap-2 text-[var(--color-museum-muted)] hover:text-red-400 transition-colors px-4 py-2 rounded-full hover:bg-red-400/10"
-            >
-              {deleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
-              {language === 'en' ? 'Discard Souvenir' : '丢弃纪念品'}
-            </button>
-          </div>
+        <div className="mt-32 text-center">
+          <Link to="/museum" className="museum-button">
+            {language === 'en' ? 'Return to Corridor' : '返回长廊'}
+          </Link>
         </div>
       </div>
     </div>
