@@ -255,12 +255,12 @@ export function DailyEntry() {
                         >
                           <div className="envelope-crease" />
                           <div className="flex flex-col items-center justify-center space-y-6 py-4">
-                            <Mail className="w-8 h-8 text-[#4a3b32]/30" />
-                            <h2 className="font-serif text-2xl md:text-3xl text-[#4a3b32]/70 italic">
+                            <Mail className="w-8 h-8 text-[#1c1816]/30" />
+                            <h2 className="font-serif text-2xl md:text-3xl text-[#1c1816]/70 italic">
                               {language === 'en' ? 'A note never sent' : '未寄出的信'}
                             </h2>
                             
-                            <div className="absolute bottom-6 right-8 flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-[#4a3b32]/40 group-hover:text-[#4a3b32]/60 transition-colors">
+                            <div className="absolute bottom-6 right-8 flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-[#1c1816]/40 group-hover:text-[#1c1816]/60 transition-colors">
                               <span>{language === 'en' ? 'Open Exhibit' : '打开展品'}</span>
                               <ChevronRight className="w-3 h-3" />
                             </div>
@@ -275,7 +275,7 @@ export function DailyEntry() {
                           className="envelope-body !p-0"
                         >
                           <div className="p-8 md:p-12 space-y-6">
-                            <label htmlFor="reflection" className="block text-center font-serif text-[#4a3b32]/60 italic text-lg md:text-xl">
+                            <label htmlFor="reflection" className="block text-center font-serif text-[#1c1816]/60 italic text-lg md:text-xl">
                               {language === 'en' 
                                 ? 'Unfold your thoughts...' 
                                 : '展开你的思绪...'}
@@ -286,14 +286,14 @@ export function DailyEntry() {
                               value={reflection}
                               onChange={(e) => setReflection(e.target.value)}
                               placeholder={language === 'en' ? 'Write a short reflection...' : '写下一段简短的感悟...'}
-                              className="w-full bg-transparent border-none p-0 text-lg md:text-xl font-serif text-[#4a3b32]/80 placeholder:text-[#4a3b32]/20 focus:outline-none focus:ring-0 transition-all resize-none h-48 leading-relaxed"
+                              className="w-full bg-transparent border-none p-0 text-lg md:text-xl font-serif text-[#1c1816]/80 placeholder:text-[#1c1816]/20 focus:outline-none focus:ring-0 transition-all resize-none h-48 leading-relaxed"
                             />
                             
                             <div className="flex justify-end pt-4">
                               <button
                                 type="button"
                                 onClick={() => setIsEnvelopeOpen(false)}
-                                className="text-[9px] tracking-[0.2em] uppercase text-[#4a3b32]/40 hover:text-[#4a3b32]/60 transition-colors"
+                                className="text-[9px] tracking-[0.2em] uppercase text-[#1c1816]/40 hover:text-[#1c1816]/60 transition-colors"
                               >
                                 {language === 'en' ? 'Fold Note' : '折叠信件'}
                               </button>

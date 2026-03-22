@@ -184,11 +184,11 @@ export function Museum() {
                         <div className="flex items-center justify-between text-[9px] tracking-[0.2em] uppercase opacity-50">
                           <span>{souvenir.objectType || souvenir.place}</span>
                         </div>
-                        <h4 className="font-serif text-2xl text-[#4a3b32] leading-tight">
+                        <h4 className="font-serif text-2xl text-[#1c1816] leading-tight">
                           {souvenir.title}
                         </h4>
                         <div className="h-px w-12 bg-black/10" />
-                        <p className="font-serif italic text-[#4a3b32]/60 text-sm line-clamp-4 leading-relaxed">
+                        <p className="font-serif italic text-[#1c1816]/60 text-sm line-clamp-4 leading-relaxed">
                           {souvenir.narrative || souvenir.subtitle}
                         </p>
                       </div>
