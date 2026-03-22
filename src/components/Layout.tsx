@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -5,13 +6,38 @@ import { LogOut, Archive, Compass, Globe } from 'lucide-react';
 import { MuseumAmbience } from './MuseumAmbience';
 import { motion } from 'motion/react';
 
+const GrainOverlay = () => <div className="grain-overlay" />;
+
+const DustParticles = () => {
+  return (
+    <div className="dust-container">
+      {[...Array(20)].map((_, i) => (
+        <div
+          key={i}
+          className="dust-particle"
+          style={{
+            '--start-x': `${Math.random() * 100}vw`,
+            '--end-x': `${Math.random() * 100}vw`,
+            '--duration': `${15 + Math.random() * 20}s`,
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${-Math.random() * 20}s`,
+          } as React.CSSProperties}
+        />
+      ))}
+    </div>
+  );
+};
+
 export function Layout() {
   const { user, logout } = useAuth();
   const { language, toggleLanguage } = useLanguage();
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-[var(--color-museum-bg)] text-[var(--color-museum-text)] flex flex-col selection:bg-[var(--color-museum-accent)]/20 selection:text-[var(--color-museum-text)]">
+    <div className="min-h-screen bg-[var(--color-museum-bg)] text-[var(--color-museum-text)] flex flex-col selection:bg-[var(--color-museum-accent)]/20 selection:text-[var(--color-museum-text)] relative">
+      <GrainOverlay />
+      <DustParticles />
+      
       <motion.header 
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}

@@ -144,13 +144,23 @@ export function Museum() {
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ duration: 2, delay: index === 0 ? 1.2 : 0.4 }}
-                  className="spotlight" 
+                  className="spotlight breathing-light" 
                 />
+
+                {/* Curator Label Above */}
+                <div className="mb-8 flex flex-col items-center gap-1">
+                  <span className="curator-label">
+                    {language === 'en' ? 'Accession' : '馆藏编号'}
+                  </span>
+                  <span className="accession-number">
+                    {new Date(souvenir.createdAt).getFullYear()}.{index + 101}.{souvenir.id.slice(-4).toUpperCase()}
+                  </span>
+                </div>
 
                 {/* The Exhibit Item */}
                 <Link 
                   to={`/museum/${souvenir.id}`}
-                  className={`group relative z-10 block w-full ${getExhibitStyle(index)} transition-all duration-700 hover:scale-[1.02]`}
+                  className={`group relative z-10 block w-full ${getExhibitStyle(index)} glass-display transition-all duration-700 hover:scale-[1.02]`}
                 >
                   <div className="space-y-6">
                     {souvenir.imageUrl && (

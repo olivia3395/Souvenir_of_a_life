@@ -92,19 +92,22 @@ export function DailyEntry() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 2, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className="exhibit-stand max-w-2xl mx-auto w-full relative"
+            className="exhibit-stand max-w-2xl mx-auto w-full relative glass-display"
           >
             {/* Spotlight illumination effect */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 3, delay: 1.5 }}
-              className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-museum-accent)/0.05_0%,transparent_70%)] pointer-events-none -z-10"
+              className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-museum-accent)/0.05_0%,transparent_70%)] pointer-events-none -z-10 breathing-light"
             />
 
-            <div className="text-center">
-              <span className="museum-label">
-                {language === 'en' ? 'Exhibit No. 042' : '展品编号 042'}
+            <div className="text-center flex flex-col items-center gap-1 mb-8">
+              <span className="curator-label">
+                {language === 'en' ? 'Accession' : '馆藏编号'}
+              </span>
+              <span className="accession-number">
+                2026.042.NEW
               </span>
             </div>
 

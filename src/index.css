@@ -22,8 +22,112 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-image: 
-    radial-gradient(circle at 50% 50%, rgba(197, 168, 122, 0.02) 0%, transparent 100%),
-    url("https://www.transparenttextures.com/patterns/stardust.png");
+    radial-gradient(circle at 50% 50%, rgba(197, 168, 122, 0.02) 0%, transparent 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Subtle Grain Overlay */
+.grain-overlay {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 9999;
+  animation: grain 8s steps(10) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(-15%, 5%); }
+  30% { transform: translate(7%, -25%); }
+  40% { transform: translate(-5%, 25%); }
+  50% { transform: translate(-15%, 10%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 15%); }
+  80% { transform: translate(3%, 35%); }
+  90% { transform: translate(-10%, 10%); }
+}
+
+/* Floating Dust Particles */
+.dust-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dust-particle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: white;
+  opacity: 0.1;
+  border-radius: 50%;
+  animation: float-dust var(--duration) linear infinite;
+}
+
+@keyframes float-dust {
+  0% { transform: translate(var(--start-x), 110vh) scale(1); opacity: 0; }
+  20% { opacity: 0.2; }
+  80% { opacity: 0.2; }
+  100% { transform: translate(var(--end-x), -10vh) scale(1.5); opacity: 0; }
+}
+
+/* Glass Reflection Effect */
+.glass-display {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-display::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(
+    45deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.01) 45%,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(255, 255, 255, 0.01) 55%,
+    transparent 100%
+  );
+  transform: rotate(-25deg);
+  pointer-events: none;
+  transition: transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 20;
+}
+
+.glass-display:hover::after {
+  transform: rotate(-25deg) translate(20%, 20%);
+}
+
+/* Breathing Light */
+.breathing-light {
+  animation: breathe 8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+/* Curator Labels */
+.curator-label {
+  @apply font-mono text-[8px] tracking-[0.4em] uppercase text-[var(--color-museum-muted)] opacity-40;
+}
+
+.accession-number {
+  @apply font-mono text-[7px] text-[var(--color-museum-accent)] opacity-30;
 }
 
 h1, h2, h3, h4, h5, h6, .font-serif {
