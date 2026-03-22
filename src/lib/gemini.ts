@@ -11,8 +11,8 @@ export interface GeneratedSouvenir {
 }
 
 export async function generateSouvenir(mood: string, reflection: string, language: 'en' | 'zh' = 'en'): Promise<GeneratedSouvenir> {
-  // Use GEMINI_API_KEY2 if the user provided it, otherwise fallback to the default GEMINI_API_KEY
-  const apiKey = process.env.GEMINI_API_KEY2 || process.env.GEMINI_API_KEY;
+  // Use the default GEMINI_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("Gemini API Key is missing. Please add it in Settings -> Secrets.");
   }
