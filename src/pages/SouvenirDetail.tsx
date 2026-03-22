@@ -123,24 +123,6 @@ export function SouvenirDetail() {
                 </p>
               </div>
 
-              {souvenir.imageUrl && (
-                <div className="mb-20 max-w-4xl mx-auto relative group">
-                  <div className="absolute -inset-4 bg-[var(--color-museum-accent)]/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                  <div className="relative overflow-hidden border border-white/10 shadow-2xl grayscale-[0.2] hover:grayscale-0 transition-all duration-1000">
-                    <img 
-                      src={souvenir.imageUrl} 
-                      alt={souvenir.title} 
-                      className="w-full h-auto object-cover scale-105 hover:scale-100 transition-transform duration-1000"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  {/* Archival Label */}
-                  <div className="absolute -bottom-4 -right-4 bg-[#d4c5a9] text-[#1c1816] px-6 py-3 shadow-xl text-[9px] tracking-[0.2em] uppercase font-bold border border-black/5">
-                    Visual Evidence Ref. {souvenir.id.slice(0, 8)}
-                  </div>
-                </div>
-              )}
-
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 max-w-5xl mx-auto">
                 <div className="lg:col-span-8 space-y-12">
                   <div className="prose prose-invert prose-p:font-serif prose-p:leading-[2] prose-p:text-[var(--color-museum-text)]/90 prose-p:text-xl">

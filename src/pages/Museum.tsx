@@ -14,7 +14,6 @@ interface SavedSouvenir {
   subtitle: string;
   moodTags: string[];
   createdAt: any;
-  imageUrl?: string;
 }
 
 const EXHIBIT_TYPES = ['ticket', 'postcard', 'archive-card', 'envelope'];
@@ -163,17 +162,6 @@ export function Museum() {
                   className={`group relative z-10 block w-full ${getExhibitStyle(index)} glass-display transition-all duration-700 hover:scale-[1.02]`}
                 >
                   <div className="space-y-6">
-                    {souvenir.imageUrl && (
-                      <div className="w-full aspect-video overflow-hidden border border-black/5 grayscale-[0.3] group-hover:grayscale-0 transition-all duration-1000">
-                        <img 
-                          src={souvenir.imageUrl} 
-                          alt={souvenir.title} 
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                    )}
-                    
                     <div className="space-y-4">
                       <div className="flex items-center justify-between text-[10px] tracking-[0.2em] uppercase opacity-60">
                         <span>{souvenir.place}</span>

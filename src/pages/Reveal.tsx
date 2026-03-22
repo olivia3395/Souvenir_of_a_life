@@ -5,7 +5,6 @@ import { generateSouvenir, GeneratedSouvenir } from '../lib/gemini';
 import { db, auth, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useLanguage } from '../contexts/LanguageContext';
-import { compressBase64Image } from '../lib/imageUtils';
 
 export function Reveal() {
   const location = useLocation();
@@ -14,8 +13,6 @@ export function Reveal() {
   const { mood, reflection, language: genLanguage } = location.state || {};
 
   const [souvenir, setSouvenir] = useState<GeneratedSouvenir | null>(null);
-  const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
-  const [imgError, setImgError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -29,8 +26,6 @@ export function Reveal() {
     try {
       const result = await generateSouvenir(mood, reflection || '', genLanguage || language);
       setSouvenir(result);
-      setImgSrc(result.imageUrl);
-      setImgError(false);
     } catch (err: any) {
       console.error(err);
       if (err.message === 'API_KEY_MISSING' || err.message.includes('API key not valid')) {
@@ -72,15 +67,6 @@ export function Reveal() {
     setSaving(true);
     try {
       let finalSouvenir = { ...souvenir };
-      
-      // Compress image if it exists and is a base64 string to stay under Firestore 1MB limit
-      if (souvenir.imageUrl && souvenir.imageUrl.startsWith('data:image')) {
-        try {
-          finalSouvenir.imageUrl = await compressBase64Image(souvenir.imageUrl);
-        } catch (compressErr) {
-          console.error("Image compression failed, attempting to save original:", compressErr);
-        }
-      }
 
       await addDoc(collection(db, 'souvenirs'), {
         userId: auth.currentUser.uid,
@@ -195,41 +181,6 @@ export function Reveal() {
                   {souvenir.subtitle}
                 </p>
               </div>
-
-              {imgSrc ? (
-                <div className="mb-20 max-w-4xl mx-auto relative group">
-                  <div className="absolute -inset-4 bg-[var(--color-museum-accent)]/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                  <div className="relative overflow-hidden border border-white/10 shadow-2xl grayscale-[0.2] hover:grayscale-0 transition-all duration-1000">
-                    <img 
-                      src={imgSrc} 
-                      alt={souvenir.title} 
-                      className="w-full h-auto object-cover scale-105 hover:scale-100 transition-transform duration-1000"
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (!imgError && !target.src.includes('loremflickr')) {
-                          setImgError(true);
-                          // Fallback to loremflickr using the exact extracted keyword to ensure we always have an image
-                          const keyword = souvenir.imageKeyword || 'object';
-                          setImgSrc(`https://loremflickr.com/1600/900/${encodeURIComponent(keyword)}`);
-                        }
-                      }}
-                    />
-                  </div>
-                  {/* Archival Label */}
-                  <div className="absolute -bottom-4 -right-4 bg-[#d4c5a9] text-[#1c1816] px-6 py-3 shadow-xl text-[9px] tracking-[0.2em] uppercase font-bold border border-black/5">
-                    Newly Materialized Artifact
-                  </div>
-                </div>
-              ) : souvenir.imageError ? (
-                <div className="mb-20 max-w-4xl mx-auto p-6 border border-red-900/30 bg-red-900/10 text-red-200/80 text-sm font-mono rounded-lg">
-                  <p className="mb-2 font-bold uppercase tracking-wider text-red-400">Image Generation Failed</p>
-                  <p>{souvenir.imageError}</p>
-                  <p className="mt-4 text-xs opacity-70">
-                    Note: Vercel deployments use your own API key. Ensure your Google Cloud project has billing enabled and access to the Imagen models, and that your region supports image generation.
-                  </p>
-                </div>
-              ) : null}
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 max-w-5xl mx-auto">
                 <div className="lg:col-span-8 space-y-12">
