@@ -124,7 +124,7 @@ export function SouvenirDetail() {
           {/* Spotlight from above */}
           <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[var(--color-museum-accent)]/10 blur-[100px] rounded-full pointer-events-none" />
 
-          <div className="bg-black/40 backdrop-blur-md border border-white/5 shadow-[0_40px_100px_rgba(0,0,0,0.8)] relative overflow-hidden">
+          <div className="bg-white/60 backdrop-blur-md border border-black/5 shadow-[0_40px_100px_rgba(0,0,0,0.1)] relative overflow-hidden">
             {/* Glass reflection effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none z-20" />
             
@@ -207,7 +207,7 @@ export function SouvenirDetail() {
                 </div>
 
                 <div className="space-y-12 relative z-10">
-                  <div className="relative bg-black/20 p-10 md:p-16 border border-white/5 shadow-2xl">
+                  <div className="relative bg-black/5 p-10 md:p-16 border border-black/5 shadow-2xl">
                     {/* Corner accents */}
                     <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[var(--color-museum-accent)]/40" />
                     <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[var(--color-museum-accent)]/40" />

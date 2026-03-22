@@ -137,7 +137,7 @@ export function Museum() {
                   className={`relative flex flex-col md:flex-row items-center gap-16 md:gap-32 py-32 md:py-48 group ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
                 >
                   {/* Center Node on the path */}
-                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-[var(--color-museum-accent)]/30 bg-[#0c0a09] z-10 hidden md:block group-hover:bg-[var(--color-museum-accent)] group-hover:border-[var(--color-museum-accent)] transition-all duration-700 group-hover:shadow-[0_0_20px_rgba(197,168,122,0.6)] group-hover:scale-150" />
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-[var(--color-museum-accent)]/30 bg-[var(--color-museum-bg)] z-10 hidden md:block group-hover:bg-[var(--color-museum-accent)] group-hover:border-[var(--color-museum-accent)] transition-all duration-700 group-hover:shadow-[0_0_20px_rgba(197,168,122,0.6)] group-hover:scale-150" />
 
                   {/* Metadata / Text Side */}
                   <div className={`flex-1 w-full flex flex-col ${isEven ? 'md:items-end md:text-right' : 'md:items-start md:text-left'} items-center text-center`}>
@@ -184,11 +184,11 @@ export function Museum() {
                         <div className="flex items-center justify-between text-[9px] tracking-[0.2em] uppercase opacity-50">
                           <span>{souvenir.objectType || souvenir.place}</span>
                         </div>
-                        <h4 className="font-serif text-2xl text-[#1c1816] leading-tight">
+                        <h4 className="font-serif text-2xl text-[#4a3b32] leading-tight">
                           {souvenir.title}
                         </h4>
                         <div className="h-px w-12 bg-black/10" />
-                        <p className="font-serif italic text-[#1c1816]/60 text-sm line-clamp-4 leading-relaxed">
+                        <p className="font-serif italic text-[#4a3b32]/60 text-sm line-clamp-4 leading-relaxed">
                           {souvenir.narrative || souvenir.subtitle}
                         </p>
                       </div>

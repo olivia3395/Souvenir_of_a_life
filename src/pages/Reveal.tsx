@@ -145,7 +145,7 @@ export function Reveal() {
   if (error || !souvenir) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
-        <div className="museum-card max-w-lg mx-auto shadow-2xl relative overflow-hidden bg-[#2a2421]">
+        <div className="museum-card max-w-lg mx-auto shadow-2xl relative overflow-hidden bg-[#5c4a3d]">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-900/20 to-transparent" />
           
           <h2 className="font-serif text-3xl font-light text-[var(--color-museum-text)] mb-6 tracking-wide">
