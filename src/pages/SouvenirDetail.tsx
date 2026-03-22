@@ -98,7 +98,14 @@ export function SouvenirDetail() {
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none z-20" />
             
             <div className="p-8 md:p-20 relative z-10">
-              <div className="flex flex-col md:flex-row items-center justify-between mb-20 gap-6">
+              {/* Archival Metadata Header */}
+              <div className="flex justify-between items-center border-b border-white/5 pb-6 mb-16 text-[9px] font-mono tracking-widest text-[var(--color-museum-muted)]/40 uppercase relative z-10">
+                <span>{language === 'en' ? 'Timeline: Divergent' : '时间线：发散'}</span>
+                <span className="hidden md:inline">{language === 'en' ? 'Status: Archived' : '状态：已归档'}</span>
+                <span>{language === 'en' ? 'Class: Memory' : '类别：记忆'}</span>
+              </div>
+
+              <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6 relative z-10">
                 <div className="flex flex-col items-center md:items-start">
                   <span className="text-[10px] tracking-[0.4em] uppercase text-[var(--color-museum-accent)] font-medium mb-2">
                     {souvenir.place}
@@ -114,44 +121,93 @@ export function SouvenirDetail() {
                 )}
               </div>
 
-              <div className="text-center space-y-10 mb-20">
+              <div className="text-center space-y-10 mb-24 relative z-10">
                 <h1 className="font-serif text-5xl md:text-7xl font-light leading-tight tracking-[0.1em] text-[var(--color-museum-text)]">
                   {souvenir.title}
                 </h1>
-                <p className="font-serif italic text-xl md:text-3xl text-[var(--color-museum-muted)]/80 max-w-3xl mx-auto">
-                  {souvenir.subtitle}
-                </p>
+                
+                <div className="flex items-center justify-center gap-6 max-w-3xl mx-auto pt-4">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
+                  <p className="font-serif italic text-xl md:text-2xl text-[var(--color-museum-muted)]/80 text-center px-4">
+                    {souvenir.subtitle}
+                  </p>
+                  <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
+                </div>
               </div>
 
-              <div className="max-w-3xl mx-auto space-y-20">
-                <div className="space-y-12">
-                  <div className="prose prose-invert prose-p:font-serif prose-p:leading-[2] prose-p:text-[var(--color-museum-text)]/90 prose-p:text-xl">
+              <div className="max-w-3xl mx-auto relative">
+                {/* Subtle Watermark */}
+                <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[150%] pointer-events-none flex justify-center opacity-[0.015] select-none z-0">
+                  <span className="text-[12rem] font-serif whitespace-nowrap -rotate-6">{souvenir.place}</span>
+                </div>
+
+                <div className="relative z-10 pl-6 md:pl-10 border-l border-[var(--color-museum-accent)]/20 py-4 my-12">
+                  {/* Log Markers */}
+                  <div className="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-[var(--color-museum-accent)]/40" />
+                  <div className="absolute -left-[24px] top-0 text-[8px] font-mono text-[var(--color-museum-accent)]/40 -rotate-90 origin-right tracking-widest hidden md:block">
+                    LOG_START
+                  </div>
+                  
+                  <div className="prose prose-invert prose-p:font-serif prose-p:leading-[2.2] prose-p:text-[var(--color-museum-text)]/90 prose-p:text-xl">
                     {souvenir.narrative.split('\n').map((paragraph, i) => (
                       <p key={i} className={paragraph.trim() ? 'mb-8' : ''}>
                         {paragraph}
                       </p>
                     ))}
                   </div>
+
+                  <div className="absolute -left-[5px] bottom-0 w-2 h-2 rounded-full bg-[var(--color-museum-accent)]/40" />
+                  <div className="absolute -left-[20px] bottom-0 text-[8px] font-mono text-[var(--color-museum-accent)]/40 -rotate-90 origin-right tracking-widest hidden md:block">
+                    LOG_END
+                  </div>
                 </div>
 
-                <div className="space-y-12">
-                  <div className="bg-black/20 p-8 md:p-12 border border-white/5 space-y-8">
+                {/* Decorative Divider */}
+                <div className="flex items-center justify-center gap-6 py-24 opacity-30 relative z-10">
+                  <div className="h-px w-32 bg-gradient-to-r from-transparent to-[var(--color-museum-accent)]" />
+                  <div className="w-3 h-3 rotate-45 border border-[var(--color-museum-accent)]" />
+                  <div className="h-px w-32 bg-gradient-to-l from-transparent to-[var(--color-museum-accent)]" />
+                </div>
+
+                <div className="space-y-12 relative z-10">
+                  <div className="relative bg-[#151211] p-10 md:p-16 border border-white/5 shadow-2xl">
+                    {/* Corner accents */}
+                    <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[var(--color-museum-accent)]/40" />
+                    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[var(--color-museum-accent)]/40" />
+                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[var(--color-museum-accent)]/40" />
+                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[var(--color-museum-accent)]/40" />
+
+                    {/* Stamp */}
+                    <div className="absolute top-8 right-8 rotate-12 border border-[var(--color-museum-accent)]/20 text-[var(--color-museum-accent)]/20 text-[10px] tracking-[0.4em] uppercase px-3 py-1.5 font-mono rounded-sm hidden md:block select-none">
+                      {language === 'en' ? 'EXHIBIT_REF' : '展品档案'}
+                    </div>
+
+                    {/* Barcode */}
+                    <div className="absolute bottom-8 right-8 flex gap-[2px] opacity-20 hidden md:flex items-end">
+                      {['w-1', 'w-0.5', 'w-1', 'w-1', 'w-0.5', 'w-0.5', 'w-1', 'w-0.5', 'w-1', 'w-0.5'].map((width, i) => (
+                        <div key={i} className={`h-6 bg-[var(--color-museum-accent)] ${width}`} />
+                      ))}
+                      <span className="text-[8px] font-mono ml-2 tracking-widest text-[var(--color-museum-accent)]">SYS.OBJ</span>
+                    </div>
+
                     <div>
-                      <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-6">
+                      <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-8 flex items-center gap-4">
+                        <span className="w-4 h-px bg-[var(--color-museum-accent)]/50"></span>
                         {language === 'en' ? 'Archival Context' : '档案背景'}
                       </h3>
-                      <p className="font-serif italic text-[var(--color-museum-muted)] leading-relaxed text-lg">
+                      <p className="font-serif italic text-[var(--color-museum-muted)] leading-relaxed text-lg pl-8 border-l border-white/5">
                         {souvenir.interpretation}
                       </p>
                     </div>
 
-                    <div className="pt-8 border-t border-white/5">
-                      <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-6">
+                    <div className="pt-12 mt-12 border-t border-white/5">
+                      <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-8 flex items-center gap-4">
+                        <span className="w-4 h-px bg-[var(--color-museum-accent)]/50"></span>
                         {language === 'en' ? 'Mood Signatures' : '情绪签名'}
                       </h3>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-3 pl-8">
                         {souvenir.moodTags.map((tag, i) => (
-                          <span key={i} className="text-[9px] tracking-widest uppercase px-3 py-1.5 border border-white/10 text-[var(--color-museum-muted)] bg-white/5">
+                          <span key={i} className="text-[9px] tracking-widest uppercase px-4 py-2 border border-white/10 text-[var(--color-museum-muted)] bg-white/5 rounded-sm">
                             {tag}
                           </span>
                         ))}
