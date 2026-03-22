@@ -31,8 +31,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (!userSnap.exists()) {
             await setDoc(userRef, {
               uid: currentUser.uid,
-              email: currentUser.email,
-              displayName: currentUser.displayName || '',
+              email: currentUser.email || null,
+              displayName: currentUser.displayName || (currentUser.isAnonymous ? 'Guest' : ''),
               createdAt: serverTimestamp(),
             });
           }

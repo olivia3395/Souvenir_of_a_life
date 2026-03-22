@@ -83,10 +83,10 @@ service cloud.firestore {
     // Domain Validators
     // ===============================================================
     function isValidUser() {
-      return hasRequiredFields(['uid', 'email', 'createdAt']) &&
+      return hasRequiredFields(['uid', 'createdAt']) &&
              hasOnlyAllowedFields(['uid', 'email', 'displayName', 'createdAt', 'role']) &&
              request.resource.data.uid is string && request.resource.data.uid.size() > 0 && request.resource.data.uid.size() < 100 &&
-             request.resource.data.email is string && isValidEmail(request.resource.data.email) && request.resource.data.email.size() < 200 &&
+             (request.resource.data.email == null || (request.resource.data.email is string && isValidEmail(request.resource.data.email) && request.resource.data.email.size() < 200)) &&
              (!('displayName' in request.resource.data) || (request.resource.data.displayName is string && request.resource.data.displayName.size() <= 100)) &&
              request.resource.data.createdAt is timestamp &&
              (!('role' in request.resource.data) || (request.resource.data.role is string && request.resource.data.role in ['admin', 'user']));

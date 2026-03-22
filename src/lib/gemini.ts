@@ -146,9 +146,11 @@ export async function generateSouvenir(mood: string, reflection: string, languag
         throw new Error("Your Gemini API key has exceeded its quota. Please check your Google Cloud billing details or wait for the quota to reset.");
       } else if (isRateLimit) {
         throw new Error("The museum is currently experiencing high visitor volume. Please wait a moment and try again.");
+      } else if (errorMessage.includes("API key not valid")) {
+        throw new Error("The museum's key is invalid. Please check the Gemini API key in the Secrets panel.");
       }
       
-      throw new Error("The museum doors are temporarily stuck. Please try again later.");
+      throw new Error(errorMessage || "The museum doors are temporarily stuck. Please try again later.");
     }
   }
   throw new Error("Your Gemini API key has exceeded its quota or rate limit. Please check your Google Cloud billing details.");
