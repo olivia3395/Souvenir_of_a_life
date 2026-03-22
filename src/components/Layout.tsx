@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LogOut, Archive, Compass, Globe } from 'lucide-react';
 import { MuseumAmbience } from './MuseumAmbience';
+import { MuseumBackground } from './MuseumBackground';
 import { motion } from 'motion/react';
 
 const GrainOverlay = () => <div className="grain-overlay" />;
@@ -34,7 +35,8 @@ export function Layout() {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-[var(--color-museum-bg)] text-[var(--color-museum-text)] flex flex-col selection:bg-[var(--color-museum-accent)]/20 selection:text-[var(--color-museum-text)] relative">
+    <div className="min-h-screen text-[var(--color-museum-text)] flex flex-col selection:bg-[var(--color-museum-accent)]/20 selection:text-[var(--color-museum-text)] relative">
+      <MuseumBackground />
       <GrainOverlay />
       <DustParticles />
       
@@ -42,7 +44,7 @@ export function Layout() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-        className="border-b border-[var(--color-museum-header-border)] bg-[var(--color-museum-bg)]/90 backdrop-blur-md sticky top-0 z-50"
+        className="border-b border-[var(--color-museum-header-border)] bg-transparent backdrop-blur-md sticky top-0 z-50"
       >
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link to={user ? "/entry" : "/"} className="font-serif italic text-lg md:text-xl tracking-[0.1em] hover:text-[var(--color-museum-accent)] transition-all duration-500">

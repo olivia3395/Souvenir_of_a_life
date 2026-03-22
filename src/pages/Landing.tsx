@@ -27,31 +27,7 @@ export function Landing() {
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden bg-[#0a0908]">
-      {/* 1. The Vignette - Very light darker edges */}
-      <div className="fixed inset-0 pointer-events-none z-50 shadow-[inset_0_0_100px_rgba(0,0,0,0.6)]" />
-      <div className="fixed inset-0 pointer-events-none z-40 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.3)_100%)]" />
-
-      {/* 2. Central Spotlight - "展厅光区" */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] bg-[var(--color-museum-accent)]/[0.04] rounded-full blur-[150px] pointer-events-none z-0" />
-      
-      {/* 3. Architecture Lines - Wall boundaries (extremely faint) */}
-      <div className="absolute top-24 left-0 w-full h-px bg-white/[0.015] pointer-events-none" />
-      <div className="absolute bottom-24 left-0 w-full h-px bg-white/[0.015] pointer-events-none" />
-      <div className="absolute top-0 left-48 w-px h-full bg-white/[0.01] pointer-events-none" />
-      <div className="absolute top-0 right-48 w-px h-full bg-white/[0.01] pointer-events-none" />
-
-      {/* 4. Atmospheric Details - Faint archival text and reflections */}
-      <div className="absolute top-32 left-56 text-[7px] tracking-[0.6em] uppercase text-white/[0.03] font-mono pointer-events-none select-none">
-        ARCHIVE_REF_001 / TIMELINE_SYNC_ACTIVE
-      </div>
-      <div className="absolute bottom-32 right-56 text-[7px] tracking-[0.6em] uppercase text-white/[0.03] font-mono pointer-events-none select-none">
-        SECTION_B / EXHIBIT_LIT_2026
-      </div>
-      
-      {/* Glass Reflection Effect (extremely subtle) */}
-      <div className="absolute inset-0 pointer-events-none z-30 opacity-[0.015] bg-gradient-to-tr from-transparent via-white to-transparent rotate-12 translate-x-1/3" />
-
+    <div className="flex-1 flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden">
       <div className="max-w-3xl w-full text-center relative z-10">
         <div className="mb-8 inline-block">
           <div className="text-[10px] tracking-[0.5em] uppercase text-[var(--color-museum-accent)] mb-4 font-medium">

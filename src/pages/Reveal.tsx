@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Loader2, Bookmark, BookmarkCheck, ArrowLeft } from 'lucide-react';
-import { generateSouvenir, GeneratedSouvenir } from '../lib/gemini';
+import { generateSouvenir, GeneratedSouvenir, expandSouvenir } from '../lib/gemini';
 import { db, auth, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useLanguage } from '../contexts/LanguageContext';
+import { INQUIRIES } from '../lib/constants';
 
 export function Reveal() {
   const location = useLocation();
@@ -18,6 +19,7 @@ export function Reveal() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isKeyMissing, setIsKeyMissing] = useState(false);
+  const [expandingId, setExpandingId] = useState<string | null>(null);
 
   const fetchSouvenir = async () => {
     setLoading(true);
@@ -83,6 +85,30 @@ export function Reveal() {
     }
   };
 
+  const handleInquiry = async (inquiry: any) => {
+    if (!souvenir) return;
+    setExpandingId(inquiry.id);
+    try {
+      const response = await expandSouvenir(souvenir, inquiry[language], language);
+      const newExpansion = {
+        id: Date.now().toString(),
+        inquiryId: inquiry.id,
+        inquiryText: inquiry[language],
+        response,
+        createdAt: Date.now()
+      };
+      setSouvenir(prev => prev ? {
+        ...prev,
+        expansions: [...(prev.expansions || []), newExpansion]
+      } : null);
+    } catch (err) {
+      console.error(err);
+      alert(language === 'en' ? 'Failed to retrieve archive fragment.' : '无法提取档案碎片。');
+    } finally {
+      setExpandingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
@@ -104,11 +130,11 @@ export function Reveal() {
           
           <div className="space-y-4 relative z-10">
             <h2 className="font-serif text-xl tracking-[0.4em] uppercase text-[var(--color-museum-text)]/80 animate-pulse">
-              {language === 'en' ? 'Materializing...' : '正在具象化...'}
+              {language === 'en' ? 'Accessing Archives...' : '正在访问档案库...'}
             </h2>
             <div className="h-px w-8 bg-[var(--color-museum-accent)]/30 mx-auto" />
             <p className="font-serif italic text-[var(--color-museum-muted)] text-sm tracking-widest">
-              {language === 'en' ? 'Reaching into parallel timelines' : '正在触及平行时间线'}
+              {language === 'en' ? 'Retrieving exhibit from parallel timeline' : '正在从平行时间线提取展品'}
             </p>
           </div>
         </div>
@@ -164,7 +190,7 @@ export function Reveal() {
           {/* Spotlight from above */}
           <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[var(--color-museum-accent)]/10 blur-[100px] rounded-full pointer-events-none" />
 
-          <div className="bg-[#1c1816] border border-white/5 shadow-[0_40px_100px_rgba(0,0,0,0.8)] relative overflow-hidden">
+          <div className="bg-black/40 backdrop-blur-md border border-white/5 shadow-[0_40px_100px_rgba(0,0,0,0.8)] relative overflow-hidden">
             {/* Glass reflection effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none z-20" />
             
@@ -172,14 +198,20 @@ export function Reveal() {
               {/* Archival Metadata Header */}
               <div className="flex justify-between items-center border-b border-white/5 pb-6 mb-16 text-[9px] font-mono tracking-widest text-[var(--color-museum-muted)]/40 uppercase relative z-10">
                 <span>{language === 'en' ? 'Timeline: Divergent' : '时间线：发散'}</span>
-                <span className="hidden md:inline">{language === 'en' ? 'Status: Materialized' : '状态：已具象化'}</span>
-                <span>{language === 'en' ? 'Class: Memory' : '类别：记忆'}</span>
+                <span className="hidden md:inline">
+                  {language === 'en' ? 'Gallery: ' : '展厅：'}
+                  <span className="text-[var(--color-museum-accent)]/80">{souvenir.themeRoom || (language === 'en' ? 'Unassigned' : '未分配')}</span>
+                </span>
+                <span>
+                  {language === 'en' ? 'Class: ' : '类别：'}
+                  <span className="text-[var(--color-museum-accent)]/80">{souvenir.objectType || 'Memory'}</span>
+                </span>
               </div>
 
               <div className="text-center space-y-10 mb-24 relative z-10">
                 <div className="inline-block">
                   <p className="text-[10px] tracking-[0.5em] uppercase text-[var(--color-museum-accent)] font-medium mb-4">
-                    {souvenir.place}
+                    {souvenir.archiveNumber} / {souvenir.objectType}
                   </p>
                   <div className="h-px w-full bg-gradient-to-r from-transparent via-[var(--color-museum-accent)]/50 to-transparent" />
                 </div>
@@ -232,7 +264,7 @@ export function Reveal() {
                 </div>
 
                 <div className="space-y-12 relative z-10">
-                  <div className="relative bg-[#151211] p-10 md:p-16 border border-white/5 shadow-2xl">
+                  <div className="relative bg-black/20 p-10 md:p-16 border border-white/5 shadow-2xl">
                     {/* Corner accents */}
                     <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[var(--color-museum-accent)]/40" />
                     <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[var(--color-museum-accent)]/40" />
@@ -255,6 +287,26 @@ export function Reveal() {
                     <div>
                       <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-8 flex items-center gap-4">
                         <span className="w-4 h-px bg-[var(--color-museum-accent)]/50"></span>
+                        {language === 'en' ? "Curator's Note" : '馆长手记'}
+                      </h3>
+                      <p className="font-serif italic text-[var(--color-museum-muted)] leading-relaxed text-lg pl-8 border-l border-white/5">
+                        {souvenir.curatorsNote}
+                      </p>
+                    </div>
+
+                    <div className="pt-12 mt-12 border-t border-white/5">
+                      <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-8 flex items-center gap-4">
+                        <span className="w-4 h-px bg-[var(--color-museum-accent)]/50"></span>
+                        {language === 'en' ? 'Parallel Moment' : '平行瞬间'}
+                      </h3>
+                      <p className="font-serif text-[var(--color-museum-text)]/80 leading-relaxed pl-8">
+                        {souvenir.parallelMoment}
+                      </p>
+                    </div>
+
+                    <div className="pt-12 mt-12 border-t border-white/5">
+                      <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-8 flex items-center gap-4">
+                        <span className="w-4 h-px bg-[var(--color-museum-accent)]/50"></span>
                         {language === 'en' ? 'Archival Context' : '档案背景'}
                       </h3>
                       <p className="font-serif italic text-[var(--color-museum-muted)] leading-relaxed text-lg pl-8 border-l border-white/5">
@@ -274,6 +326,50 @@ export function Reveal() {
                           </span>
                         ))}
                       </div>
+                    </div>
+
+                    {/* Expansions / Curatorial Fragments */}
+                    {souvenir.expansions?.map((exp, idx) => (
+                      <div key={exp.id} className="mt-12 pt-12 border-t border-white/5 relative">
+                        <div className="absolute -left-[24px] top-12 text-[8px] font-mono text-[var(--color-museum-accent)]/40 -rotate-90 origin-right tracking-widest hidden md:block">
+                          ADDENDUM_0{idx + 1}
+                        </div>
+                        <h4 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-6 flex items-center gap-4">
+                          <span className="w-4 h-px bg-[var(--color-museum-accent)]/50"></span>
+                          {exp.inquiryText}
+                        </h4>
+                        <div className="prose prose-invert prose-p:font-serif prose-p:leading-[2.2] prose-p:text-[var(--color-museum-text)]/80 prose-p:text-lg pl-8 border-l border-[var(--color-museum-accent)]/10">
+                          {exp.response.split('\n').map((paragraph, i) => (
+                            <p key={i} className={paragraph.trim() ? 'mb-6' : ''}>
+                              {paragraph}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Further Investigation Buttons */}
+                  <div className="mt-24 pt-16 border-t border-[var(--color-museum-border)]">
+                    <h3 className="font-serif text-2xl text-[var(--color-museum-text)] mb-8 text-center">
+                      {language === 'en' ? 'Further Investigation' : '深入探索'}
+                    </h3>
+                    <div className="flex flex-col items-center gap-4">
+                      {INQUIRIES.filter(inq => !souvenir.expansions?.some(e => e.inquiryId === inq.id)).map(inquiry => (
+                        <button
+                          key={inquiry.id}
+                          onClick={() => handleInquiry(inquiry)}
+                          disabled={expandingId !== null}
+                          className="text-[11px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)] hover:text-[var(--color-museum-accent)] transition-colors flex items-center gap-3 group disabled:opacity-50"
+                        >
+                          {expandingId === inquiry.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-museum-border)] group-hover:bg-[var(--color-museum-accent)] transition-colors" />
+                          )}
+                          {inquiry[language as 'en' | 'zh']}
+                        </button>
+                      ))}
                     </div>
                   </div>
 

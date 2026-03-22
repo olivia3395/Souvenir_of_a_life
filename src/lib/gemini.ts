@@ -7,8 +7,72 @@ export interface GeneratedSouvenir {
   narrative: string;
   interpretation: string;
   moodTags: string[];
+  archiveNumber: string;
+  objectType: string;
+  curatorsNote: string;
+  parallelMoment: string;
+  themeRoom: 'Almost Brave' | 'Things Never Sent' | 'Places I Almost Stayed' | 'Lives Not Yet Begun';
+  expansions?: {
+    id: string;
+    inquiryId: string;
+    inquiryText: string;
+    response: string;
+    createdAt: number;
+  }[];
 }
 
+export async function expandSouvenir(souvenir: Partial<GeneratedSouvenir>, inquiry: string, language: 'en' | 'zh' = 'en'): Promise<string> {
+  const apiKey = (window as any).process?.env?.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("API_KEY_MISSING");
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `
+    You are the curator of the "Museum of Lives Not Yet Lived".
+    You are looking at this exhibit in the archive:
+    Title: ${souvenir.title}
+    Place: ${souvenir.place}
+    Narrative: ${souvenir.narrative}
+
+    The visitor has made a curatorial inquiry: "${inquiry}"
+
+    Write a short, poetic, cinematic response (1-2 paragraphs) addressing this inquiry.
+    If they ask about a related object, describe it as another physical artifact.
+    If they ask about the weather or a morning, describe the sensory details of that parallel timeline.
+    Keep the tone archival, intimate, and slightly melancholic.
+    Do not break character. Do not use conversational filler like "Ah, yes" or "Here is". Just deliver the archival fragment.
+
+    CRITICAL LANGUAGE REQUIREMENT:
+    Respond ONLY in ${language === 'en' ? 'English' : 'Chinese (简体中文)'}.
+  `;
+
+  let retries = 3;
+  let delay = 1000;
+
+  while (retries > 0) {
+    try {
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+      });
+      if (!response.text) throw new Error("Failed to generate expansion");
+      return response.text.trim();
+    } catch (error: any) {
+      const errorMessage = error?.message || String(error);
+      const isRateLimit = error?.status === 429 || errorMessage.includes("429") || errorMessage.includes("RESOURCE_EXHAUSTED");
+      const isQuota = errorMessage.includes("quota") || errorMessage.includes("billing");
+
+      if (isRateLimit && !isQuota && retries > 1) {
+        retries--;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2;
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw new Error("Failed to expand souvenir.");
+}
 export async function generateSouvenir(mood: string, reflection: string, language: 'en' | 'zh' = 'en'): Promise<GeneratedSouvenir> {
   // Use the selected API key if available, otherwise fallback to default
   const apiKey = (window as any).process?.env?.API_KEY || process.env.GEMINI_API_KEY;
@@ -21,13 +85,16 @@ export async function generateSouvenir(mood: string, reflection: string, languag
 
   const prompt = `
     You are the curator of the "Museum of Lives Not Yet Lived". 
-    A traveler has arrived feeling: "${mood}".
-    They shared this reflection: "${reflection}".
+    A traveler has arrived and shared their current resonance: "${mood}".
+    They also left this unspoken thought in an unsent letter: "${reflection}".
 
-    Generate a souvenir from a parallel life they have not lived yet.
-    The souvenir MUST be chosen from a wide variety of at least 20+ different types of keepsakes. 
-    DO NOT always generate train tickets or postcards.
-    Examples: a matchbook, a vinyl record sleeve, a polaroid, a theater playbill, a library card, a metro pass, a concert wristband, a fortune cookie slip, a wine cork, a boarding pass, a recipe card, an antique coin, a tarot card, an enamel pin, a map fragment, a hotel key, a museum stamp, a handwritten letter, a café receipt, a luggage tag, a pressed flower.
+    Generate a souvenir from a parallel life they have not lived yet, directly inspired by their resonance and unspoken thought.
+    The souvenir MUST feel like an everyday, lived-in, ordinary personal travel keepsake that someone could realistically carry, keep in a drawer, or forget in a coat pocket.
+    The feeling should be intimate, personal, everyday, and emotionally meaningful — not luxurious, ancient, or collectible in a formal antique sense. Think less "antique artifact" and more "forgotten personal keepsake."
+    
+    Prefer objects such as: train tickets, ferry receipts, café receipts, hotel keycards, postcards, metro passes, museum stubs, polaroids, folded maps, pressed flowers, handwritten notes, matchboxes, luggage tags.
+    
+    AVOID objects that feel too old, aristocratic, ceremonial, or museum-antique (e.g., enamel boxes, jeweled objects, ornate relics, royal items, highly decorative historical artifacts, antique coins, tarot cards).
     
     CRITICAL LANGUAGE REQUIREMENT:
     All text fields MUST be provided ONLY in the requested language: ${language === 'en' ? 'English' : 'Chinese (简体中文)'}.
@@ -39,8 +106,13 @@ export async function generateSouvenir(mood: string, reflection: string, languag
     - narrative: 1-3 short paragraphs of immersive, cinematic narrative.
     - interpretation: 1 short paragraph explaining why this object found the user now.
     - moodTags: 2-4 mood tags.
+    - archiveNumber: A fictional archive code (e.g., "EXH-402-B", "ARC-19-V").
+    - objectType: The physical type of the object (e.g., "Faded Train Ticket", "Brass Key", "Unsent Letter").
+    - curatorsNote: A short, melancholic observation about this item from the museum curator.
+    - parallelMoment: A brief 1-2 sentence description of the exact moment this timeline diverged.
+    - themeRoom: Must be exactly one of these four strings: "Almost Brave", "Things Never Sent", "Places I Almost Stayed", "Lives Not Yet Begun".
 
-    Tone: Poetic, calm, emotionally intelligent, cinematic.
+    Tone: Poetic, calm, emotionally intelligent, cinematic, archival.
   `;
 
   let retries = 3;
@@ -64,9 +136,14 @@ export async function generateSouvenir(mood: string, reflection: string, languag
               moodTags: {
                 type: Type.ARRAY,
                 items: { type: Type.STRING }
-              }
+              },
+              archiveNumber: { type: Type.STRING },
+              objectType: { type: Type.STRING },
+              curatorsNote: { type: Type.STRING },
+              parallelMoment: { type: Type.STRING },
+              themeRoom: { type: Type.STRING }
             },
-            required: ["title", "place", "subtitle", "narrative", "interpretation", "moodTags"]
+            required: ["title", "place", "subtitle", "narrative", "interpretation", "moodTags", "archiveNumber", "objectType", "curatorsNote", "parallelMoment", "themeRoom"]
           }
         }
       });
@@ -95,7 +172,12 @@ export async function generateSouvenir(mood: string, reflection: string, languag
         subtitle: parsed.subtitle || (language === 'en' ? "A fragment of an unlived life" : "一段未曾经历的生命碎片"),
         narrative: parsed.narrative || (language === 'en' ? "The story of this object has been lost to time." : "这件物品的故事已消失在时间的长河中。"),
         interpretation: parsed.interpretation || (language === 'en' ? "It found you when you needed it." : "它在你需要的时候找到了你。"),
-        moodTags: Array.isArray(parsed.moodTags) ? parsed.moodTags : []
+        moodTags: Array.isArray(parsed.moodTags) ? parsed.moodTags : [],
+        archiveNumber: parsed.archiveNumber || "ARC-000-X",
+        objectType: parsed.objectType || (language === 'en' ? "Unidentified Artifact" : "未确认文物"),
+        curatorsNote: parsed.curatorsNote || (language === 'en' ? "A quiet resonance remains." : "留有微弱的共鸣。"),
+        parallelMoment: parsed.parallelMoment || (language === 'en' ? "The moment of divergence is unclear." : "分歧的瞬间并不清晰。"),
+        themeRoom: parsed.themeRoom || "Lives Not Yet Begun"
       };
 
       return souvenir;

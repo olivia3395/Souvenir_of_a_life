@@ -14,6 +14,9 @@ interface SavedSouvenir {
   subtitle: string;
   moodTags: string[];
   createdAt: any;
+  themeRoom?: string;
+  archiveNumber?: string;
+  objectType?: string;
 }
 
 const EXHIBIT_TYPES = ['ticket', 'postcard', 'archive-card', 'envelope'];
@@ -47,6 +50,17 @@ export function Museum() {
     return () => unsubscribe();
   }, []);
 
+  const groupedSouvenirs = souvenirs.reduce((acc, souvenir) => {
+    const room = souvenir.themeRoom || 'Lives Not Yet Begun';
+    if (!acc[room]) {
+      acc[room] = [];
+    }
+    acc[room].push(souvenir);
+    return acc;
+  }, {} as Record<string, SavedSouvenir[]>);
+
+  const roomNames = Object.keys(groupedSouvenirs);
+
   const getExhibitStyle = (index: number) => {
     const type = EXHIBIT_TYPES[index % EXHIBIT_TYPES.length];
     switch (type) {
@@ -68,32 +82,6 @@ export function Museum() {
 
   return (
     <div className="gallery-corridor">
-      {/* 1. The Vignette - Very light darker edges */}
-      <div className="fixed inset-0 pointer-events-none z-50 shadow-[inset_0_0_100px_rgba(0,0,0,0.6)]" />
-      <div className="fixed inset-0 pointer-events-none z-40 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.3)_100%)]" />
-
-      {/* 2. Architecture Lines - Wall boundaries (extremely faint) */}
-      <div className="fixed top-24 left-0 w-full h-px bg-white/[0.015] pointer-events-none z-30" />
-      <div className="fixed bottom-24 left-0 w-full h-px bg-white/[0.015] pointer-events-none z-30" />
-      <div className="fixed top-0 left-48 w-px h-full bg-white/[0.01] pointer-events-none z-30" />
-      <div className="fixed top-0 right-48 w-px h-full bg-white/[0.01] pointer-events-none z-30" />
-
-      {/* 3. Atmospheric Details - Faint archival text and reflections */}
-      <div className="fixed top-32 left-56 text-[7px] tracking-[0.6em] uppercase text-white/[0.03] font-mono pointer-events-none select-none z-30">
-        GALLERY_HALL_C / ARCHIVE_ACCESS_GRANTED
-      </div>
-      <div className="fixed bottom-32 right-56 text-[7px] tracking-[0.6em] uppercase text-white/[0.03] font-mono pointer-events-none select-none z-30">
-        COLLECTION_V_04 / EXHIBIT_LIT_2026
-      </div>
-
-      {/* Glass Reflection Effect (extremely subtle) */}
-      <div className="fixed inset-0 pointer-events-none z-30 opacity-[0.015] bg-gradient-to-tr from-transparent via-white to-transparent rotate-12 translate-x-1/3" />
-
-      {/* Background Ambience */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20" />
-      </div>
-
       <div className="gallery-wall">
         <header className="text-center mb-32 px-6">
           <motion.div
@@ -128,73 +116,91 @@ export function Museum() {
             </Link>
           </motion.div>
         ) : (
-          <div className="space-y-[40vh]">
-            {souvenirs.map((souvenir, index) => (
-              <motion.div 
-                key={souvenir.id}
-                initial={{ opacity: 0, y: 100, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ margin: "-20%", once: false }}
-                transition={{ duration: 1.5, delay: index === 0 ? 0.8 : 0, ease: [0.22, 1, 0.36, 1] }}
-                className="exhibit-item-container relative flex flex-col items-center px-6"
-              >
-                {/* Spotlight effect */}
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ duration: 2, delay: index === 0 ? 1.2 : 0.4 }}
-                  className="spotlight breathing-light" 
-                />
-
-                {/* Curator Label Above */}
-                <div className="mb-8 flex flex-col items-center gap-1">
-                  <span className="curator-label">
-                    {language === 'en' ? 'Accession' : '馆藏编号'}
-                  </span>
-                  <span className="accession-number">
-                    {new Date(souvenir.createdAt).getFullYear()}.{index + 101}.{souvenir.id.slice(-4).toUpperCase()}
-                  </span>
+          <div className="space-y-64">
+            {roomNames.map((roomName, roomIndex) => (
+              <div key={roomName} className="relative">
+                {/* Room Header */}
+                <div className="sticky top-24 z-20 mb-32 text-center">
+                  <div className="inline-block bg-transparent backdrop-blur-md px-8 py-4 border border-white/5 shadow-2xl">
+                    <h2 className="font-serif text-2xl md:text-3xl text-[var(--color-museum-accent)] mb-2">
+                      {roomName}
+                    </h2>
+                    <p className="text-[9px] font-mono tracking-[0.4em] uppercase text-[var(--color-museum-muted)]/60">
+                      {language === 'en' ? `Gallery ${roomIndex + 1}` : `展厅 ${roomIndex + 1}`}
+                    </p>
+                  </div>
                 </div>
 
-                {/* The Exhibit Item */}
-                <Link 
-                  to={`/museum/${souvenir.id}`}
-                  className={`group relative z-10 block w-full ${getExhibitStyle(index)} glass-display transition-all duration-700 hover:scale-[1.02]`}
-                >
-                  <div className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between text-[10px] tracking-[0.2em] uppercase opacity-60">
-                        <span>{souvenir.place}</span>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-3 h-3" />
-                          {souvenir.createdAt?.toDate && format(souvenir.createdAt.toDate(), 'MMM yyyy')}
+                <div className="space-y-[40vh]">
+                  {groupedSouvenirs[roomName].map((souvenir, index) => (
+                    <motion.div 
+                      key={souvenir.id}
+                      initial={{ opacity: 0, y: 100, scale: 0.95 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ margin: "-20%", once: false }}
+                      transition={{ duration: 1.5, delay: index === 0 ? 0.2 : 0, ease: [0.22, 1, 0.36, 1] }}
+                      className="exhibit-item-container relative flex flex-col items-center px-6"
+                    >
+                      {/* Spotlight effect */}
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ duration: 2, delay: index === 0 ? 0.6 : 0.4 }}
+                        className="spotlight breathing-light" 
+                      />
+
+                      {/* Curator Label Above */}
+                      <div className="mb-8 flex flex-col items-center gap-1">
+                        <span className="curator-label">
+                          {language === 'en' ? 'Accession' : '馆藏编号'}
+                        </span>
+                        <span className="accession-number">
+                          {souvenir.archiveNumber || `${new Date(souvenir.createdAt?.toDate() || Date.now()).getFullYear()}.${index + 101}.${souvenir.id.slice(-4).toUpperCase()}`}
+                        </span>
+                      </div>
+
+                      {/* The Exhibit Item */}
+                      <Link 
+                        to={`/museum/${souvenir.id}`}
+                        className={`group relative z-10 block w-full ${getExhibitStyle(index)} glass-display transition-all duration-700 hover:scale-[1.02]`}
+                      >
+                        <div className="space-y-6">
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between text-[10px] tracking-[0.2em] uppercase opacity-60">
+                              <span>{souvenir.objectType || souvenir.place}</span>
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-3 h-3" />
+                                {souvenir.createdAt?.toDate && format(souvenir.createdAt.toDate(), 'MMM yyyy')}
+                              </div>
+                            </div>
+                            
+                            <h3 className="font-serif text-3xl text-[#1c1816] leading-tight">
+                              {souvenir.title}
+                            </h3>
+                            
+                            <p className="font-serif italic text-[#1c1816]/60 text-sm line-clamp-2">
+                              {souvenir.subtitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Approach indicator */}
+                        <div className="absolute -right-12 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
+                          <ArrowRight className="w-6 h-6 text-[var(--color-museum-accent)]" />
+                        </div>
+                      </Link>
+
+                      {/* Exhibit Label Tag */}
+                      <div className="exhibit-label-tag text-center">
+                        <div className="mb-1 opacity-40">ITEM NO. {souvenirs.length - index}</div>
+                        <div className="font-serif italic text-xs text-[var(--color-museum-text)]">
+                          {language === 'en' ? 'Acquired from parallel timeline' : '获取自平行时间线'}
                         </div>
                       </div>
-                      
-                      <h3 className="font-serif text-3xl text-[#1c1816] leading-tight">
-                        {souvenir.title}
-                      </h3>
-                      
-                      <p className="font-serif italic text-[#1c1816]/60 text-sm line-clamp-2">
-                        {souvenir.subtitle}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Approach indicator */}
-                  <div className="absolute -right-12 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
-                    <ArrowRight className="w-6 h-6 text-[var(--color-museum-accent)]" />
-                  </div>
-                </Link>
-
-                {/* Exhibit Label Tag */}
-                <div className="exhibit-label-tag text-center">
-                  <div className="mb-1 opacity-40">ITEM NO. {souvenirs.length - index}</div>
-                  <div className="font-serif italic text-xs text-[var(--color-museum-text)]">
-                    {language === 'en' ? 'Acquired from parallel timeline' : '获取自平行时间线'}
-                  </div>
+                    </motion.div>
+                  ))}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
