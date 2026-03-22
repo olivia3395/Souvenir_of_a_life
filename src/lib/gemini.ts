@@ -11,10 +11,11 @@ export interface GeneratedSouvenir {
 }
 
 export async function generateSouvenir(mood: string, reflection: string, language: 'en' | 'zh' = 'en'): Promise<GeneratedSouvenir> {
-  // Use the default GEMINI_API_KEY
-  const apiKey = process.env.GEMINI_API_KEY;
+  // Use the selected API key if available, otherwise fallback to default
+  const apiKey = (window as any).process?.env?.API_KEY || process.env.GEMINI_API_KEY;
+  
   if (!apiKey) {
-    throw new Error("Gemini API Key is missing. Please add it in Settings -> Secrets.");
+    throw new Error("API_KEY_MISSING");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -27,22 +28,20 @@ export async function generateSouvenir(mood: string, reflection: string, languag
     Generate a souvenir from a parallel life they have not lived yet.
     The souvenir MUST be chosen from a wide variety of at least 20+ different types of keepsakes. 
     DO NOT always generate train tickets or postcards.
-    Examples of diverse souvenir types: a fridge magnet, a matchbook, a vinyl record sleeve, a polaroid photo, a theater playbill, a library checkout card, a metro pass, a concert wristband, a fortune cookie slip, a wine cork, a boarding pass, a local newspaper clipping, a recipe card, an antique coin, a tarot card, an enamel pin, a map fragment, a hotel key, a museum stamp, a handwritten letter, a café receipt, a luggage tag, a pressed flower, a polaroid, a dried leaf, a faded photograph, a torn ticket stub, a handwritten note on a napkin, a small pebble, a seashell, a piece of sea glass, a small carved wooden figure, a brass key, a silver locket, a pocket watch, a compass, a small telescope, a magnifying glass, a pair of spectacles, a fountain pen, a bottle of ink, a leather-bound journal, a small sketchbook, a set of watercolors, a paintbrush, a palette, a piece of sheet music, a tuning fork, a metronome, a small music box, a set of dice, a deck of playing cards, a chess piece, a small puzzle, a spinning top, a yo-yo, a kite, a small paper boat, a paper crane, a small glass bottle with a message inside.
-    If it is a letter, it should be presented as a letter.
+    Examples: a matchbook, a vinyl record sleeve, a polaroid, a theater playbill, a library card, a metro pass, a concert wristband, a fortune cookie slip, a wine cork, a boarding pass, a recipe card, an antique coin, a tarot card, an enamel pin, a map fragment, a hotel key, a museum stamp, a handwritten letter, a café receipt, a luggage tag, a pressed flower.
     
     CRITICAL LANGUAGE REQUIREMENT:
-    All text fields (title, place, subtitle, narrative, interpretation, moodTags) MUST be provided ONLY in the requested language: ${language === 'en' ? 'English' : 'Chinese (简体中文)'}.
-    Do NOT provide bilingual output. Provide the output strictly in ${language === 'en' ? 'English' : 'Chinese'}.
+    All text fields MUST be provided ONLY in the requested language: ${language === 'en' ? 'English' : 'Chinese (简体中文)'}.
     
     It must include:
     - title: The name of the object.
     - place: The destination or place it is from.
     - subtitle: An unlived-life framing.
-    - narrative: 1-3 short paragraphs of immersive, cinematic narrative about this unlived life and how this object came to be.
+    - narrative: 1-3 short paragraphs of immersive, cinematic narrative.
     - interpretation: 1 short paragraph explaining why this object found the user now.
-    - moodTags: 2-4 mood tags associated with the souvenir.
+    - moodTags: 2-4 mood tags.
 
-    Tone: Poetic, calm, emotionally intelligent, restrained, beautiful but readable. Cinematic, specific, emotionally grounded. Avoid therapy jargon, motivational clichés, or exaggerated fantasy language.
+    Tone: Poetic, calm, emotionally intelligent, cinematic.
   `;
 
   let retries = 3;
@@ -51,22 +50,21 @@ export async function generateSouvenir(mood: string, reflection: string, languag
   while (retries > 0) {
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
+        model: "gemini-3-flash-preview", // Use flash for better compatibility with default keys
         contents: prompt,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
             properties: {
-              title: { type: Type.STRING, description: `The name of the object (in ${language})` },
-              place: { type: Type.STRING, description: `The destination or place (in ${language})` },
-              subtitle: { type: Type.STRING, description: `The unlived-life framing (in ${language})` },
-              narrative: { type: Type.STRING, description: `Short immersive narrative (in ${language})` },
-              interpretation: { type: Type.STRING, description: `Emotional interpretation (in ${language})` },
+              title: { type: Type.STRING },
+              place: { type: Type.STRING },
+              subtitle: { type: Type.STRING },
+              narrative: { type: Type.STRING },
+              interpretation: { type: Type.STRING },
               moodTags: {
                 type: Type.ARRAY,
-                items: { type: Type.STRING },
-                description: `Mood tags associated with the souvenir (in ${language})`
+                items: { type: Type.STRING }
               }
             },
             required: ["title", "place", "subtitle", "narrative", "interpretation", "moodTags"]

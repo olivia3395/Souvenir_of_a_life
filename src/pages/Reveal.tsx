@@ -18,6 +18,25 @@ export function Reveal() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isKeyMissing, setIsKeyMissing] = useState(false);
+
+  const fetchSouvenir = async () => {
+    setLoading(true);
+    setError(null);
+    setIsKeyMissing(false);
+    try {
+      const result = await generateSouvenir(mood, reflection || '', genLanguage || language);
+      setSouvenir(result);
+    } catch (err: any) {
+      console.error(err);
+      if (err.message === 'API_KEY_MISSING' || err.message.includes('API key not valid')) {
+        setIsKeyMissing(true);
+      }
+      setError(err.message || 'Failed to generate souvenir. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!mood) {
@@ -25,20 +44,24 @@ export function Reveal() {
       return;
     }
 
-    const fetchSouvenir = async () => {
-      try {
-        const result = await generateSouvenir(mood, reflection || '', genLanguage || language);
-        setSouvenir(result);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || 'Failed to generate souvenir. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchSouvenir();
   }, [mood, reflection, navigate, genLanguage, language]);
+
+  const handleSelectKey = async () => {
+    try {
+      if ((window as any).aistudio?.openSelectKey) {
+        await (window as any).aistudio.openSelectKey();
+        // After selecting, try again
+        fetchSouvenir();
+      } else {
+        alert(language === 'en' 
+          ? "Please configure your GEMINI_API_KEY in the Secrets panel." 
+          : "请在 Secrets 面板中配置您的 GEMINI_API_KEY。");
+      }
+    } catch (err) {
+      console.error("Failed to open key selection:", err);
+    }
+  };
 
   const handleSave = async () => {
     if (!souvenir || !auth.currentUser) return;
@@ -114,14 +137,30 @@ export function Reveal() {
           </h2>
           <div className="h-px w-12 bg-[var(--color-museum-border)] mx-auto mb-6" />
           <p className="text-[var(--color-museum-muted)] font-serif italic mb-12 text-lg leading-relaxed">
-            {error || (language === 'en' ? 'The souvenir could not be retrieved from the void.' : '无法从虚空中找回这件纪念品。')}
+            {isKeyMissing 
+              ? (language === 'en' 
+                  ? 'The museum curator needs a special key to access the archives. Please provide a Gemini API key.' 
+                  : '博物馆馆长需要一把特殊的钥匙来访问档案。请提供 Gemini API 密钥。')
+              : (error || (language === 'en' ? 'The souvenir could not be retrieved from the void.' : '无法从虚空中找回这件纪念品。'))}
           </p>
-          <button 
-            onClick={() => navigate('/entry')} 
-            className="museum-button px-8 py-4 bg-transparent text-[var(--color-museum-text)] border-[var(--color-museum-accent)]/30"
-          >
-            <ArrowLeft className="w-4 h-4 mr-3" /> {language === 'en' ? 'Return to Present' : '返回现在'}
-          </button>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {isKeyMissing && (
+              <button 
+                onClick={handleSelectKey}
+                className="museum-button px-8 py-4 bg-[var(--color-museum-accent)]/10 text-[var(--color-museum-text)] border-[var(--color-museum-accent)]/30"
+              >
+                {language === 'en' ? 'Provide API Key' : '提供 API 密钥'}
+              </button>
+            )}
+            
+            <button 
+              onClick={() => navigate('/entry')} 
+              className="museum-button px-8 py-4 bg-transparent text-[var(--color-museum-text)] border-[var(--color-museum-border)]"
+            >
+              <ArrowLeft className="w-4 h-4 mr-3" /> {language === 'en' ? 'Return to Present' : '返回现在'}
+            </button>
+          </div>
         </div>
       </div>
     );
