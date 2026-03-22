@@ -8,6 +8,7 @@ export interface GeneratedSouvenir {
   interpretation: string;
   moodTags: string[];
   imageUrl?: string;
+  imageError?: string;
 }
 
 export async function generateSouvenir(mood: string, reflection: string, language: 'en' | 'zh' = 'en'): Promise<GeneratedSouvenir> {
@@ -101,13 +102,11 @@ export async function generateSouvenir(mood: string, reflection: string, languag
 
       // Generate an image for the souvenir
       try {
-        const imagePrompt = `A highly detailed, cinematic, and atmospheric photograph of a keepsake from an unlived life. The object is: ${souvenir.title}. It is from: ${souvenir.place}. Context: ${souvenir.subtitle}. The object is resting on a textured surface, beautifully lit with moody, evocative lighting. If it is a letter or postcard, show the handwritten text and paper texture. High quality, photorealistic, 8k resolution. CRITICAL: ANY TEXT VISIBLE IN THE IMAGE MUST BE IN ENGLISH ONLY. Do not include any Chinese characters in the image itself.`;
+        const imagePrompt = `A highly detailed, cinematic, and atmospheric photograph of a keepsake from an unlived life. The object is: ${souvenir.title}. It is from: ${souvenir.place}. Context: ${souvenir.subtitle}. The object is resting on a textured surface, beautifully lit with moody, evocative lighting. High quality, photorealistic, 8k resolution.`;
         
         const imageResponse = await ai.models.generateContent({
-          model: 'gemini-2.5-flash-image',
-          contents: {
-            parts: [{ text: imagePrompt }]
-          },
+          model: 'gemini-3.1-flash-image-preview',
+          contents: imagePrompt,
           config: {
             imageConfig: {
               aspectRatio: "16:9"
@@ -121,8 +120,9 @@ export async function generateSouvenir(mood: string, reflection: string, languag
             break;
           }
         }
-      } catch (imageError) {
-        console.error("Image generation failed, continuing without image:", imageError);
+      } catch (imageError: any) {
+        console.error("Image generation failed:", imageError);
+        souvenir.imageError = imageError?.message || String(imageError);
       }
 
       return souvenir;

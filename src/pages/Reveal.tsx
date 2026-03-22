@@ -192,7 +192,7 @@ export function Reveal() {
                 </p>
               </div>
 
-              {souvenir.imageUrl && (
+              {souvenir.imageUrl ? (
                 <div className="mb-20 max-w-4xl mx-auto relative group">
                   <div className="absolute -inset-4 bg-[var(--color-museum-accent)]/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                   <div className="relative overflow-hidden border border-white/10 shadow-2xl grayscale-[0.2] hover:grayscale-0 transition-all duration-1000">
@@ -208,7 +208,15 @@ export function Reveal() {
                     Newly Materialized Artifact
                   </div>
                 </div>
-              )}
+              ) : souvenir.imageError ? (
+                <div className="mb-20 max-w-4xl mx-auto p-6 border border-red-900/30 bg-red-900/10 text-red-200/80 text-sm font-mono rounded-lg">
+                  <p className="mb-2 font-bold uppercase tracking-wider text-red-400">Image Generation Failed</p>
+                  <p>{souvenir.imageError}</p>
+                  <p className="mt-4 text-xs opacity-70">
+                    Note: Vercel deployments use your own API key. Ensure your Google Cloud project has billing enabled and access to the Imagen models, and that your region supports image generation.
+                  </p>
+                </div>
+              ) : null}
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 max-w-5xl mx-auto">
                 <div className="lg:col-span-8 space-y-12">
