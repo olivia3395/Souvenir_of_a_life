@@ -4,53 +4,23 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export function Landing() {
-  const { user, signIn, signInGuest, signInWithEmail, signUpWithEmail } = useAuth();
+  const { user, signInGuest } = useAuth();
   const { language } = useLanguage();
   const navigate = useNavigate();
   
-  const [showEmailForm, setShowEmailForm] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   if (user) {
     return <Navigate to="/entry" replace />;
   }
 
-  const handleGoogleSignIn = async () => {
-    try {
-      await signIn();
-      navigate('/entry');
-    } catch (error) {
-      // Error is handled in context
-    }
-  };
-
-  const handleGuestSignIn = async () => {
+  const handleEnter = async () => {
+    setLoading(true);
     try {
       await signInGuest();
       navigate('/entry');
     } catch (error) {
-      // Error is handled in context
-    }
-  };
-
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      if (isSignUp) {
-        await signUpWithEmail(email, password, name);
-      } else {
-        await signInWithEmail(email, password);
-      }
-      navigate('/entry');
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+      // Error is handled in context (alerts for missing config)
     } finally {
       setLoading(false);
     }
@@ -107,103 +77,19 @@ export function Landing() {
             : '一座关于你未曾选择的道路的静谧档案。回望你的旅程，并从那个遥远的自己手中，收到一份纪念。'}
         </p>
 
-        {!showEmailForm ? (
-          <div className="flex flex-col items-center gap-6">
-            <button
-              onClick={handleGuestSignIn}
-              className="museum-button px-12 py-6 text-[11px] tracking-[0.4em] bg-[var(--color-museum-accent)]/10 text-[var(--color-museum-text)] hover:shadow-[0_0_50px_rgba(197,168,122,0.1)] border-[var(--color-museum-accent)]/30 w-full max-w-sm"
-            >
-              <span className="relative z-10">{language === 'en' ? 'Enter as Guest' : '以访客身份进入'}</span>
-            </button>
-
-            <div className="flex gap-8 mt-4">
-              <button
-                onClick={handleGoogleSignIn}
-                className="text-[9px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)] hover:text-[var(--color-museum-text)] transition-colors"
-              >
-                {language === 'en' ? 'Google Login' : 'Google 登录'}
-              </button>
-              
-              <button
-                onClick={() => setShowEmailForm(true)}
-                className="text-[9px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)] hover:text-[var(--color-museum-text)] transition-colors"
-              >
-                {language === 'en' ? 'Email Login' : '邮箱登录'}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleEmailSubmit} className="max-w-sm mx-auto flex flex-col gap-6 bg-white/[0.02] p-8 border border-white/[0.05] rounded-2xl backdrop-blur-sm">
-            <div className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)] mb-4">
-              {isSignUp 
-                ? (language === 'en' ? 'Create Archive Access' : '创建档案访问权限')
-                : (language === 'en' ? 'Verify Archive Access' : '验证档案访问权限')}
-            </div>
-
-            {error && <div className="text-red-400 text-[10px] tracking-wider mb-2">{error}</div>}
-
-            {isSignUp && (
-              <input
-                type="text"
-                placeholder={language === 'en' ? 'NAME' : '姓名'}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="bg-transparent border-b border-[var(--color-museum-border)] py-3 text-sm focus:outline-none focus:border-[var(--color-museum-accent)] transition-colors text-[var(--color-museum-text)]"
-              />
-            )}
-            
-            <input
-              type="email"
-              placeholder={language === 'en' ? 'EMAIL' : '邮箱'}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="bg-transparent border-b border-[var(--color-museum-border)] py-3 text-sm focus:outline-none focus:border-[var(--color-museum-accent)] transition-colors text-[var(--color-museum-text)]"
-            />
-            
-            <input
-              type="password"
-              placeholder={language === 'en' ? 'PASSWORD' : '密码'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="bg-transparent border-b border-[var(--color-museum-border)] py-3 text-sm focus:outline-none focus:border-[var(--color-museum-accent)] transition-colors text-[var(--color-museum-text)]"
-            />
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="museum-button py-4 text-[10px] tracking-[0.3em] bg-[var(--color-museum-accent)]/10 text-[var(--color-museum-text)] border-[var(--color-museum-accent)]/30 mt-4"
-            >
+        <div className="flex flex-col items-center gap-6">
+          <button
+            onClick={handleEnter}
+            disabled={loading}
+            className="museum-button px-12 py-6 text-[11px] tracking-[0.4em] bg-[var(--color-museum-accent)]/10 text-[var(--color-museum-text)] hover:shadow-[0_0_50px_rgba(197,168,122,0.1)] border-[var(--color-museum-accent)]/30 w-full max-w-sm"
+          >
+            <span className="relative z-10">
               {loading 
-                ? (language === 'en' ? 'PROCESSING...' : '处理中...')
-                : (isSignUp 
-                    ? (language === 'en' ? 'CREATE ACCOUNT' : '创建账户') 
-                    : (language === 'en' ? 'SIGN IN' : '登录'))}
-            </button>
-
-            <div className="flex justify-between items-center mt-4">
-              <button
-                type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-[9px] tracking-[0.2em] uppercase text-[var(--color-museum-muted)] hover:text-[var(--color-museum-text)]"
-              >
-                {isSignUp 
-                  ? (language === 'en' ? 'Already have access?' : '已有访问权限？') 
-                  : (language === 'en' ? 'Request new access?' : '申请新访问权限？')}
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => setShowEmailForm(false)}
-                className="text-[9px] tracking-[0.2em] uppercase text-[var(--color-museum-muted)] hover:text-[var(--color-museum-text)]"
-              >
-                {language === 'en' ? 'Back' : '返回'}
-              </button>
-            </div>
-          </form>
-        )}
+                ? (language === 'en' ? 'ENTERING...' : '进入中...') 
+                : (language === 'en' ? 'ENTER THE ARCHIVE' : '进入档案库')}
+            </span>
+          </button>
+        </div>
         
         <div className="mt-20 flex items-center justify-center gap-4 text-[9px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)]/40">
           <div className="h-px w-8 bg-[var(--color-museum-border)]" />
