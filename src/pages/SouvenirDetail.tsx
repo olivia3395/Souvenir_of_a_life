@@ -123,8 +123,8 @@ export function SouvenirDetail() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 max-w-5xl mx-auto">
-                <div className="lg:col-span-8 space-y-12">
+              <div className="max-w-3xl mx-auto space-y-20">
+                <div className="space-y-12">
                   <div className="prose prose-invert prose-p:font-serif prose-p:leading-[2] prose-p:text-[var(--color-museum-text)]/90 prose-p:text-xl">
                     {souvenir.narrative.split('\n').map((paragraph, i) => (
                       <p key={i} className={paragraph.trim() ? 'mb-8' : ''}>
@@ -134,8 +134,8 @@ export function SouvenirDetail() {
                   </div>
                 </div>
 
-                <div className="lg:col-span-4 space-y-12">
-                  <div className="bg-black/20 p-8 border border-white/5 space-y-8">
+                <div className="space-y-12">
+                  <div className="bg-black/20 p-8 md:p-12 border border-white/5 space-y-8">
                     <div>
                       <h3 className="text-[10px] tracking-[0.3em] uppercase text-[var(--color-museum-accent)] mb-6">
                         {language === 'en' ? 'Archival Context' : '档案背景'}
@@ -159,7 +159,7 @@ export function SouvenirDetail() {
                     </div>
                   </div>
 
-                  <div className="pt-12 flex justify-center lg:justify-end">
+                  <div className="pt-12 flex justify-center">
                     <button
                       onClick={handleDelete}
                       disabled={deleting}
