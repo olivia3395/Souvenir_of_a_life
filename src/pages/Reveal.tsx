@@ -14,6 +14,8 @@ export function Reveal() {
   const { mood, reflection, language: genLanguage } = location.state || {};
 
   const [souvenir, setSouvenir] = useState<GeneratedSouvenir | null>(null);
+  const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
+  const [imgError, setImgError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -27,6 +29,8 @@ export function Reveal() {
     try {
       const result = await generateSouvenir(mood, reflection || '', genLanguage || language);
       setSouvenir(result);
+      setImgSrc(result.imageUrl);
+      setImgError(false);
     } catch (err: any) {
       console.error(err);
       if (err.message === 'API_KEY_MISSING' || err.message.includes('API key not valid')) {
@@ -69,8 +73,8 @@ export function Reveal() {
     try {
       let finalSouvenir = { ...souvenir };
       
-      // Compress image if it exists to stay under Firestore 1MB limit
-      if (souvenir.imageUrl) {
+      // Compress image if it exists and is a base64 string to stay under Firestore 1MB limit
+      if (souvenir.imageUrl && souvenir.imageUrl.startsWith('data:image')) {
         try {
           finalSouvenir.imageUrl = await compressBase64Image(souvenir.imageUrl);
         } catch (compressErr) {
@@ -192,15 +196,24 @@ export function Reveal() {
                 </p>
               </div>
 
-              {souvenir.imageUrl ? (
+              {imgSrc ? (
                 <div className="mb-20 max-w-4xl mx-auto relative group">
                   <div className="absolute -inset-4 bg-[var(--color-museum-accent)]/5 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                   <div className="relative overflow-hidden border border-white/10 shadow-2xl grayscale-[0.2] hover:grayscale-0 transition-all duration-1000">
                     <img 
-                      src={souvenir.imageUrl} 
+                      src={imgSrc} 
                       alt={souvenir.title} 
                       className="w-full h-auto object-cover scale-105 hover:scale-100 transition-transform duration-1000"
                       referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (!imgError && !target.src.includes('loremflickr')) {
+                          setImgError(true);
+                          // Fallback to loremflickr using the exact extracted keyword to ensure we always have an image
+                          const keyword = souvenir.imageKeyword || 'object';
+                          setImgSrc(`https://loremflickr.com/1600/900/${encodeURIComponent(keyword)}`);
+                        }
+                      }}
                     />
                   </div>
                   {/* Archival Label */}
