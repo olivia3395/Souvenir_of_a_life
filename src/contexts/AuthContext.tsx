@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { User, onAuthStateChanged, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signInAnonymously } from 'firebase/auth';
 import { auth, googleProvider, db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: () => Promise<void>;
+  signInGuest: () => Promise<void>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
   signUpWithEmail: (email: string, pass: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -54,13 +55,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error signing in', error);
       if (error.code === 'auth/popup-blocked') {
         alert('Sign-in popup was blocked by your browser. Please allow popups for this site and try again.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        alert('This domain is not authorized in Firebase. Please add your Vercel domain to the Authorized Domains list in Firebase Console.');
       } else if (error.code === 'auth/cancelled-popup-request') {
-        // Ignore cancelled popup requests
+        // Ignore
       } else {
         throw error;
       }
     } finally {
       setIsSigningIn(false);
+    }
+  };
+
+  const signInGuest = async () => {
+    try {
+      await signInAnonymously(auth);
+    } catch (error: any) {
+      console.error('Error signing in anonymously', error);
+      if (error.code === 'auth/operation-not-allowed') {
+        alert('Anonymous sign-in is not enabled in Firebase Console. Please enable it in Authentication -> Sign-in method.');
+      }
+      throw error;
     }
   };
 
@@ -102,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signInWithEmail, signUpWithEmail, logout }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signInGuest, signInWithEmail, signUpWithEmail, logout }}>
       {children}
     </AuthContext.Provider>
   );

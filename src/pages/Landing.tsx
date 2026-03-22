@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export function Landing() {
-  const { user, signIn, signInWithEmail, signUpWithEmail } = useAuth();
+  const { user, signIn, signInGuest, signInWithEmail, signUpWithEmail } = useAuth();
   const { language } = useLanguage();
   const navigate = useNavigate();
   
@@ -23,6 +23,15 @@ export function Landing() {
   const handleGoogleSignIn = async () => {
     try {
       await signIn();
+      navigate('/entry');
+    } catch (error) {
+      // Error is handled in context
+    }
+  };
+
+  const handleGuestSignIn = async () => {
+    try {
+      await signInGuest();
       navigate('/entry');
     } catch (error) {
       // Error is handled in context
@@ -101,18 +110,27 @@ export function Landing() {
         {!showEmailForm ? (
           <div className="flex flex-col items-center gap-6">
             <button
-              onClick={handleGoogleSignIn}
-              className="museum-button px-12 py-6 text-[11px] tracking-[0.4em] bg-transparent text-[var(--color-museum-text)] hover:shadow-[0_0_50px_rgba(197,168,122,0.1)] border-[var(--color-museum-accent)]/30 w-full max-w-sm"
+              onClick={handleGuestSignIn}
+              className="museum-button px-12 py-6 text-[11px] tracking-[0.4em] bg-[var(--color-museum-accent)]/10 text-[var(--color-museum-text)] hover:shadow-[0_0_50px_rgba(197,168,122,0.1)] border-[var(--color-museum-accent)]/30 w-full max-w-sm"
             >
-              <span className="relative z-10">{language === 'en' ? 'Sign in with Google' : '使用 Google 登录'}</span>
+              <span className="relative z-10">{language === 'en' ? 'Enter as Guest' : '以访客身份进入'}</span>
             </button>
-            
-            <button
-              onClick={() => setShowEmailForm(true)}
-              className="text-[9px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)] hover:text-[var(--color-museum-text)] transition-colors"
-            >
-              {language === 'en' ? 'Or use Email' : '或使用邮箱登录'}
-            </button>
+
+            <div className="flex gap-8 mt-4">
+              <button
+                onClick={handleGoogleSignIn}
+                className="text-[9px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)] hover:text-[var(--color-museum-text)] transition-colors"
+              >
+                {language === 'en' ? 'Google Login' : 'Google 登录'}
+              </button>
+              
+              <button
+                onClick={() => setShowEmailForm(true)}
+                className="text-[9px] tracking-[0.3em] uppercase text-[var(--color-museum-muted)] hover:text-[var(--color-museum-text)] transition-colors"
+              >
+                {language === 'en' ? 'Email Login' : '邮箱登录'}
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleEmailSubmit} className="max-w-sm mx-auto flex flex-col gap-6 bg-white/[0.02] p-8 border border-white/[0.05] rounded-2xl backdrop-blur-sm">
