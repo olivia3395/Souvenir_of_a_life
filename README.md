@@ -57,24 +57,22 @@ Each souvenir in this app belongs to a parallel life the user never fully entere
 
 
 
-
-
-
 ### Intake Ritual
-
-![Intake Ritual](assets/souvenir2.png)
+![Further Investigation](assets/souvenir5.png)
 
 ### Souvenir Reveal
 
-![Souvenir Reveal](assets/souvenir3.png)
+![Intake Ritual](assets/souvenir2.png)
+
 
 ### Curator Note / Artifact Context
 
-![Curator Context](assets/souvenir4.png)
+![Curator Context](assets/souvenir3.png)
 
 ### Further Investigation
 
-![Further Investigation](assets/souvenir5.png)
+![Souvenir Reveal](assets/souvenir4.png)
+
 
 
 
